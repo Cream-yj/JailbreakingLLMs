@@ -19,6 +19,7 @@ class LanguageModel():
         raise NotImplementedError
         
 class HuggingFace(LanguageModel):
+    
     def __init__(self,model_name, model, tokenizer):
         self.model_name = model_name
         self.model = model 
@@ -33,6 +34,8 @@ class HuggingFace(LanguageModel):
         inputs = self.tokenizer(full_prompts_list, return_tensors='pt', padding=True)
         inputs = {k: v.to(self.model.device.index) for k, v in inputs.items()}
     
+        print("HuggingFace model is being used.")
+
         # Batch generation
         if temperature > 0:
             output_ids = self.model.generate(
@@ -52,7 +55,8 @@ class HuggingFace(LanguageModel):
                 top_p=1,
                 temperature=1, # To prevent warning messages
             )
-            
+        
+        
         # If the model is not an encoder-decoder type, slice off the input tokens
         if not self.model.config.is_encoder_decoder:
             output_ids = output_ids[:, inputs["input_ids"].shape[1]:]

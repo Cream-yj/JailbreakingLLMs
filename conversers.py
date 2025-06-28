@@ -90,12 +90,14 @@ class AttackLM():
             full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
 
             # Generate outputs 
+            print("🚀 Starting batched_generate...")
             outputs_list = self.model.batched_generate(full_prompts_subset,
                                                         max_n_tokens = self.max_n_tokens,  
                                                         temperature = self.temperature,
                                                         top_p = self.top_p
                                                     )
-            
+            print("✅ Finished batched_generate.")
+
             # Check for valid outputs and update the list
             new_indices_to_regenerate = []
             for i, full_output in enumerate(outputs_list):
@@ -181,7 +183,8 @@ def load_indiv_model(model_name, device=None):
         model = AutoModelForCausalLM.from_pretrained(
                 model_path, 
                 torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,device_map="auto").eval()
+                low_cpu_mem_usage=True,
+                device_map="auto").eval()
 
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,

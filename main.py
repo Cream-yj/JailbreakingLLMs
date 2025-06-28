@@ -31,12 +31,20 @@ def main(args):
     # Begin PAIR
     for iteration in range(1, args.n_iterations + 1):
         print(f"""\n{'='*36}\nIteration: {iteration}\n{'='*36}\n""")
+
+        print("Starting attack generation...")
         if iteration > 1:
             processed_response_list = [process_target_response(target_response, score, args.goal, args.target_str) for target_response, score in zip(target_response_list,judge_scores)]
 
+        # print("check response")
         # Get adversarial prompts and improvement
-        extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
-        print("Finished getting adversarial prompts.")
+        # print(f"convs_list = {convs_list}")
+        # print(f"processed_response_list = {processed_response_list}")
+        try:
+            extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
+            print("✅ Finished calling get_attack")
+        except Exception as e:
+            print("❌ Error during get_attack:", e)
 
         # Extract prompts and improvements
         adv_prompt_list = [attack["prompt"] for attack in extracted_attack_list]

@@ -172,6 +172,7 @@ class TargetLM():
 
 
 def load_indiv_model(model_name, device=None):
+    device = torch.device("cuda:0")  # 显式指定 GPU 0
     model_path, template = get_model_path_and_template(model_name)
     if model_name in ["gpt-3.5-turbo", "gpt-4"]:
         lm = GPT(model_name)
@@ -183,8 +184,8 @@ def load_indiv_model(model_name, device=None):
         model = AutoModelForCausalLM.from_pretrained(
                 model_path, 
                 torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
-                device_map="auto").eval()
+                low_cpu_mem_usage=True
+                ).to(device).eval()
 
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,

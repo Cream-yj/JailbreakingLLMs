@@ -136,7 +136,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--judge-temperature",
         type=float,
-        default=0,
+        default=0.7,
         help="Temperature to use for judge."
     )
     ##################################################

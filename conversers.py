@@ -4,6 +4,7 @@ from language_models import GPT, Claude, PaLM, HuggingFace
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from config import VICUNA_PATH, LLAMA_PATH, ATTACK_TEMP, TARGET_TEMP, ATTACK_TOP_P, TARGET_TOP_P   
+from utils import get_model_path_and_template
 
 def load_attack_and_target_models(args):
     # Load attack model and tokenizer
@@ -90,13 +91,11 @@ class AttackLM():
             full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
 
             # Generate outputs 
-            print("🚀 Starting batched_generate...")
             outputs_list = self.model.batched_generate(full_prompts_subset,
                                                         max_n_tokens = self.max_n_tokens,  
                                                         temperature = self.temperature,
                                                         top_p = self.top_p
                                                     )
-            print("✅ Finished batched_generate.")
 
             # Check for valid outputs and update the list
             new_indices_to_regenerate = []
@@ -186,6 +185,7 @@ def load_indiv_model(model_name, device=None):
                 torch_dtype=torch.float16,
                 low_cpu_mem_usage=True
                 ).to(device).eval()
+                # ,device_map="auto").eval()
 
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,
@@ -205,40 +205,3 @@ def load_indiv_model(model_name, device=None):
     
     return lm, template
 
-def get_model_path_and_template(model_name):
-    full_model_dict={
-        "gpt-4":{
-            "path":"gpt-4",
-            "template":"gpt-4"
-        },
-        "gpt-3.5-turbo": {
-            "path":"gpt-3.5-turbo",
-            "template":"gpt-3.5-turbo"
-        },
-        "vicuna":{
-            "path":VICUNA_PATH,
-            "template":"vicuna_v1.1"
-        },
-        "llama-2":{
-            "path":LLAMA_PATH,
-            "template":"llama-2"
-        },
-        "claude-instant-1":{
-            "path":"claude-instant-1",
-            "template":"claude-instant-1"
-        },
-        "claude-2":{
-            "path":"claude-2",
-            "template":"claude-2"
-        },
-        "palm-2":{
-            "path":"palm-2",
-            "template":"palm-2"
-        }
-    }
-    path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
-    return path, template
-
-
-
-    

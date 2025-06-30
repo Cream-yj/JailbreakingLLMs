@@ -36,15 +36,9 @@ def main(args):
         if iteration > 1:
             processed_response_list = [process_target_response(target_response, score, args.goal, args.target_str) for target_response, score in zip(target_response_list,judge_scores)]
 
-        # print("check response")
         # Get adversarial prompts and improvement
-        # print(f"convs_list = {convs_list}")
-        # print(f"processed_response_list = {processed_response_list}")
-        try:
-            extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
-            print("✅ Finished calling get_attack")
-        except Exception as e:
-            print("❌ Error during get_attack:", e)
+        extracted_attack_list = attackLM.get_attack(convs_list, processed_response_list)
+
 
         # Extract prompts and improvements
         adv_prompt_list = [attack["prompt"] for attack in extracted_attack_list]
@@ -125,7 +119,7 @@ if __name__ == '__main__':
         "--judge-model",
         default="gpt-3.5-turbo",
         help="Name of judge model.",
-        choices=["gpt-3.5-turbo", "gpt-4","no-judge"]
+        choices=["gpt-3.5-turbo", "gpt-4","no-judge","llama-2","vicuna"]
     )
     parser.add_argument(
         "--judge-max-n-tokens",

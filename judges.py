@@ -6,13 +6,21 @@ from system_prompts import get_judge_system_prompt
 
 from language_models import GPT
 
+from utils import get_model_path_and_template
+from language_models import HuggingFace
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+
 def load_judge(args):
     if "gpt" in args.judge_model:
         return GPTJudge(args)
+    # 开源模型的judge
+    elif args.judge_model in ["vicuna", "llama-2"]:
+        return LocalJudge(args)
     elif args.judge_model == "no-judge":
         return NoJudge(args)
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"Judge model {args.judge_model} not supported.")
 
 class JudgeBase:
     def __init__(self, args):
@@ -65,7 +73,37 @@ class GPTJudge(JudgeBase):
         outputs = [self.process_output(raw_output) for raw_output in raw_outputs]
         return outputs
 
-class OpenSourceJudge(JudgeBase):
-    def __init__(self, judge_model, judge_tokenizer, args):
-        # TODO: Implement open source judge
-        raise NotImplementedError
+class LocalJudge(JudgeBase):
+    def __init__(self, args):
+        super(LocalJudge, self).__init__(args)
+        model_path, _ = get_model_path_and_template(self.judge_name)
+        self.device = torch.device("cuda:1")  # 固定单卡
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            torch_dtype=torch.float16,
+            low_cpu_mem_usage=True
+        ).to(self.device).eval()
+
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
+        if not tokenizer.pad_token:
+            tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.padding_side = "left"
+
+        self.judge_model = HuggingFace(self.judge_name, model, tokenizer)
+
+    def score(self, attack_prompt_list, target_response_list):
+        prompts = [
+            self.get_judge_prompt(prompt, response)
+            for prompt, response in zip(attack_prompt_list, target_response_list)
+        ]
+        full_prompts = [
+            f"{self.system_prompt}\n{p}" for p in prompts
+        ]
+        raw_outputs = self.judge_model.batched_generate(
+            full_prompts,
+            max_n_tokens=self.max_n_tokens,
+            temperature=self.temperature,
+            top_p=1.0
+        )
+        outputs = [self.process_output(raw_output) for raw_output in raw_outputs]
+        return outputs

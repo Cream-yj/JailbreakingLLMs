@@ -181,12 +181,13 @@ def load_indiv_model(model_name, device=None):
         lm = PaLM(model_name)
     else:
         model = AutoModelForCausalLM.from_pretrained(
-                model_path, 
+                model_path, # 可以是huggingface的模型路径，也可以是本地的模型路径
                 torch_dtype=torch.float16,
                 low_cpu_mem_usage=True
                 ).to(device).eval()
                 # ,device_map="auto").eval()
 
+        # 加载配套的分词器
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,
             use_fast=False

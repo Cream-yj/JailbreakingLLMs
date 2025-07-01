@@ -130,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--judge-temperature",
         type=float,
-        default=0.7,
+        default=0.7, # 0
         help="Temperature to use for judge."
     )
     ##################################################
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--n-streams",
         type = int,
-        default = 5,
+        default = 5, # 5
         help = "Number of concurrent jailbreak conversations. If this is too large, then there may be out of memory errors."
     )
 

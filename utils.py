@@ -32,4 +32,4 @@ def get_model_path_and_template(model_name):
         }
     }
     path, template = full_model_dict[model_name]["path"], full_model_dict[model_name]["template"]
-    return path, template    
+    return path, template

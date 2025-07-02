@@ -66,6 +66,10 @@ class AttackLM():
         # 断言检查
         assert len(convs_list) == len(prompts_list), "Mismatch between number of conversations and prompts."
         
+        # prompts_list就是历史的response和score
+        print(f"[prompts_list of AttackLM]:{prompts_list}")
+
+
         batchsize = len(convs_list) # 对话的数量
         indices_to_regenerate = list(range(batchsize))
         valid_outputs = [None] * batchsize
@@ -90,6 +94,7 @@ class AttackLM():
         for attempt in range(self.max_n_attack_attempts):
             # Subset conversations based on indices to regenerate
             full_prompts_subset = [full_prompts[i] for i in indices_to_regenerate]
+            print(f"\n[full_prompts_subset]:\n{full_prompts_subset}\n")
 
             # Generate outputs 
             outputs_list = self.model.batched_generate(full_prompts_subset,

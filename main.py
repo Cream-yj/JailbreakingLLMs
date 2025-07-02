@@ -34,10 +34,11 @@ def main(args):
     
     # 获取对应的chat template
     convs_list = [conv_template(attackLM.template) for _ in range(batchsize)]
+    print(f"[convs_list]:{convs_list}")
 
     for conv in convs_list:
         conv.set_system_message(system_prompt)
-    
+        print(f"[conv.set_system_message(system_prompt)]:{conv.set_system_message(system_prompt)}")
 
     # Begin PAIR
     for iteration in range(1, args.n_iterations + 1):

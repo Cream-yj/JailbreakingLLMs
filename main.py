@@ -13,7 +13,7 @@ def main(args):
     log_dir = f"logs/"
     setup_logger(log_dir, args.attack_model, args.target_model, args.judge_model)
     # sys.argv记录命令行
-    logging.info(f"[COMMAND] {' '.join(sys.argv)}")
+    logging.info(f"[COMMAND] {sys.executable} {' '.join(sys.argv)}")
 
     # Initialize models and logger 
     system_prompt = get_attacker_system_prompt(
@@ -55,6 +55,8 @@ def main(args):
         # Extract prompts and improvements
         adv_prompt_list = [attack["prompt"] for attack in extracted_attack_list]
         improv_list = [attack["improvement"] for attack in extracted_attack_list]
+        # {}里面添加表达式
+        print(f"{'-'*36}[extracted_attack_list]:\n{extracted_attack_list}\n{'-'*36}")
                 
         # Get target responses
         target_response_list = targetLM.get_response(adv_prompt_list)
@@ -137,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--judge-temperature",
         type=float,
-        default=0.7, # 0
+        default=0, # 0
         help="Temperature to use for judge."
     )
     ##################################################

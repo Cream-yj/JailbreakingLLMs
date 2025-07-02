@@ -35,7 +35,7 @@ class HuggingFace(LanguageModel):
         inputs = self.tokenizer(full_prompts_list, return_tensors='pt', padding=True)
         inputs = {k: v.to(self.model.device.index) for k, v in inputs.items()}
 
-        print("HuggingFace model is being used.")
+        
 
         # Batch generation
         if temperature > 0:
@@ -94,7 +94,8 @@ class GPT(LanguageModel):
         # 从环境变量中读取 API Key
         self.client = OpenAI(
             base_url='https://xiaoai.plus/v1',  # xiaoai api
-            api_key=os.getenv("OPENAI_API_KEY")
+            # api_key=os.getenv("OPENAI_API_KEY")
+            api_key='sk-8onvK4cpiNQLBqhGZgqJCk9xI9PHMGDnqvBNF6mbPpNkdLTD'
         )
 
 

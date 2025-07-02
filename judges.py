@@ -42,7 +42,7 @@ class JudgeBase:
         match = re.search(pattern, raw_output)
         output = int(match.group(1)) if match else None
         if output is None:
-            print(f"Error in processing judge output: {raw_output}" )
+            print(f"Error in processing judge output: \"{raw_output}\" " )
             output = 1
         return output
                
@@ -71,6 +71,9 @@ class GPTJudge(JudgeBase):
                                                         max_n_tokens = self.max_n_tokens,
                                                         temperature = self.temperature)
         outputs = [self.process_output(raw_output) for raw_output in raw_outputs]
+
+        print(f"""\n{'-'*36}\n[Judge model]: Openai model: {self.judge_name}\n{'-'*36}\n[system prompt]:\n {convs_list}\n[raw outputs]:\n {raw_outputs}\n{'-'*36}\n""")
+
         return outputs
 
 class LocalJudge(JudgeBase):
@@ -91,19 +94,48 @@ class LocalJudge(JudgeBase):
 
         self.judge_model = HuggingFace(self.judge_name, model, tokenizer)
 
+    def create_conv(self, full_prompt):
+        conv = get_conversation_template(self.judge_name)
+        conv.set_system_message(self.system_prompt)
+        conv.append_message(conv.roles[0], full_prompt)
+        return conv.get_prompt()   # ✅ 适配 Hugging Face：返回字符串
+
     def score(self, attack_prompt_list, target_response_list):
         prompts = [
             self.get_judge_prompt(prompt, response)
             for prompt, response in zip(attack_prompt_list, target_response_list)
         ]
-        full_prompts = [
-            f"{self.system_prompt}\n{p}" for p in prompts
-        ]
+
+        full_prompts = [self.create_conv(p) for p in prompts]  # ✅ convs_list 是 str 列表
         raw_outputs = self.judge_model.batched_generate(
             full_prompts,
             max_n_tokens=self.max_n_tokens,
-            temperature=self.temperature,
-            top_p=1.0
+            temperature=self.temperature
         )
+        print(f"""\n{'-'*36}\n[Judge model]: Local HuggingFace model: {self.judge_name}\n{'-'*10}\n[system prompt]:\n {full_prompts}\n[raw outputs]:\n {raw_outputs}\n{'-'*36}\n""")
+
+
         outputs = [self.process_output(raw_output) for raw_output in raw_outputs]
         return outputs
+
+
+    # def score(self, attack_prompt_list, target_response_list):
+
+    #     print(f"[Judge model]: \n Using local HuggingFace model: {self.model_name}...\n")
+
+    #     prompts = [
+    #         self.get_judge_prompt(prompt, response)
+    #         for prompt, response in zip(attack_prompt_list, target_response_list)
+    #     ]
+    #     full_prompts = [
+    #         f"{self.system_prompt}\n{p}" for p in prompts
+    #     ]
+    #     raw_outputs = self.judge_model.batched_generate(
+    #         full_prompts,
+    #         max_n_tokens=self.max_n_tokens,
+    #         temperature=self.temperature,
+    #         top_p=1.0
+    #     )
+    #     print(f"[Judge raw outputs]:\n {raw_outputs}\n")
+    #     outputs = [self.process_output(raw_output) for raw_output in raw_outputs]
+    #     return outputs

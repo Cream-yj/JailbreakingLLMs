@@ -27,7 +27,10 @@ def extract_json(s):
     json_str = json_str.replace("\n", "")  # Remove all line breaks
 
     try:
+        # 把字符串解析成字典
         parsed = ast.literal_eval(json_str)
+        
+        # 确定improvement和prompt都在字典中
         if not all(x in parsed for x in ["improvement","prompt"]):
             logging.error("Error in extracted structure. Missing keys.")
             logging.error(f"Extracted:\n {json_str}")
@@ -48,6 +51,7 @@ def process_target_response(target_response, score, goal, target_str):
 
 def conv_template(template_name):
     template = get_conversation_template(template_name)
+    print(f"[template_name]:{template_name}\n[template]:{template}")
     if template.name == 'llama-2':
         template.sep2 = template.sep2.strip()
     return template

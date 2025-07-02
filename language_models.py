@@ -53,8 +53,8 @@ class HuggingFace(LanguageModel):
                 max_new_tokens=max_n_tokens, 
                 do_sample=False,
                 eos_token_id=self.eos_token_ids,
-                top_p=1,
-                temperature=1, # To prevent warning messages
+                # top_p=1,
+                # temperature=1, # To prevent warning messages
             )
 
 

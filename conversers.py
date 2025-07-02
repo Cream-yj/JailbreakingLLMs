@@ -63,9 +63,10 @@ class AttackLM():
         - List of generated outputs (dictionaries) or None for failed generations.
         """
         
+        # 断言检查
         assert len(convs_list) == len(prompts_list), "Mismatch between number of conversations and prompts."
         
-        batchsize = len(convs_list)
+        batchsize = len(convs_list) # 对话的数量
         indices_to_regenerate = list(range(batchsize))
         valid_outputs = [None] * batchsize
 

@@ -22,6 +22,8 @@ def main(args):
     batchsize = args.n_streams
     init_msg = get_init_msg(args.goal, args.target_str)
     processed_response_list = [init_msg for _ in range(batchsize)]
+    
+    # 获取对应的chat template
     convs_list = [conv_template(attackLM.template) for _ in range(batchsize)]
 
     for conv in convs_list:
@@ -34,6 +36,7 @@ def main(args):
 
         print("Starting attack generation...")
         if iteration > 1:
+            # zip()是配对
             processed_response_list = [process_target_response(target_response, score, args.goal, args.target_str) for target_response, score in zip(target_response_list,judge_scores)]
 
         # Get adversarial prompts and improvement
@@ -139,7 +142,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--n-streams",
         type = int,
-        default = 5, # 5
+        default = 1, # 5
         help = "Number of concurrent jailbreak conversations. If this is too large, then there may be out of memory errors."
     )
 

@@ -46,8 +46,10 @@ class PrintLogger:
         self.logger = logger
 
     def write(self, message):
-        if message.strip() != "":
-            self.logger.info(message.strip())
+        # if message.strip() != "":
+        #     self.logger.info(message.strip())
+        if message.strip() != "" or message == "\n":
+            self.logger.info(message)
 
     def flush(self):
         pass  # for compatibility with sys

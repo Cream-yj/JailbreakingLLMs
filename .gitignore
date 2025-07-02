@@ -1,3 +1,5 @@
 hf-model
 wandb
 __pycache__
+
+logs/
